@@ -123,37 +123,32 @@ public class ForecastFragment extends Fragment {
         }
 
         /**
-         * Prepare the weather high/lows for presentation.
-         */
-        private String formatHighLows(double high, double low) {
-            // For presentation, assume the user doesn't care about tenths of a degree.
-            long roundedHigh = Math.round(high);
-            long roundedLow = Math.round(low);
-
-            String highLowStr = roundedHigh + "/" + roundedLow;
-            return highLowStr;
-        }
-
-        /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
          *
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+        private String[] getWeatherDataFromJson(String locationJsonStr, int numDays)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
-            final String OWM_LIST = "list";
-            final String OWM_WEATHER = "weather";
-            final String OWM_TEMPERATURE = "temp";
-            final String OWM_MAX = "max";
-            final String OWM_MIN = "min";
-            final String OWM_DATETIME = "dt";
-            final String OWM_DESCRIPTION = "main";
+            final String LOC = "locations";
+            final String LOC_KEY = "key";
+            final String LOC_ACT = "location_active";
+            final String DESC_NAME = "descriptive_name";
+            final String MAX_LNG = "max_longitude";
+            final String MIN_LNG = "min_longitude";
+            final String MAX_LAT = "max_latitude";
+            final String MIN_LAT = "min_latitude";
+            final String CAMERA_ACT = "camera_active";
+            final String CAMERA_MSG = "camera_message";
+            final String VIDEO_ACT = "video_active";
+            final String VIDEO_MSG = "video_message";
 
-            JSONObject forecastJson = new JSONObject(forecastJsonStr);
+
+
+            JSONObject forecastJson = new JSONObject(locationJsonStr);
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             String[] resultStrs = new String[numDays];
