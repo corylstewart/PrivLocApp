@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,11 +38,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Date;
+import java.util.Map;
 
 
 public class ForecastFragment extends Fragment {
@@ -110,18 +110,6 @@ public class ForecastFragment extends Fragment {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-
-        /* The date/time conversion code is going to be moved outside the asynctask later,
-         * so for convenience we're breaking it out into its own method now.
-         */
-        private String getReadableDateString(long time){
-            // Because the API returns a unix timestamp (measured in seconds),
-            // it must be converted to milliseconds in order to be converted to valid date.
-            Date date = new Date(time * 1000);
-            SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
-            return format.format(date).toString();
-        }
-
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
@@ -129,63 +117,52 @@ public class ForecastFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getWeatherDataFromJson(String locationJsonStr, int numDays)
+        private String[] getLocationDataFromJson(String locationJsonStr, int numDays)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
             final String LOC = "locations";
-            final String LOC_KEY = "key";
-            final String LOC_ACT = "location_active";
-            final String DESC_NAME = "descriptive_name";
-            final String MAX_LNG = "max_longitude";
-            final String MIN_LNG = "min_longitude";
-            final String MAX_LAT = "max_latitude";
-            final String MIN_LAT = "min_latitude";
-            final String CAMERA_ACT = "camera_active";
-            final String CAMERA_MSG = "camera_message";
-            final String VIDEO_ACT = "video_active";
-            final String VIDEO_MSG = "video_message";
+            Map<String, String> LOC_KEYS = new HashMap<String, String>();
+            LOC_KEYS.put("LOC_KEY", "key");
+            LOC_KEYS.put("LOC_ACT", "location_active");
+            LOC_KEYS.put("DESC_NAME", "descriptive_name");
+            LOC_KEYS.put("MAX_LNG", "max_longitude");
+            LOC_KEYS.put("MIN_LNG", "min_longitude");
+            LOC_KEYS.put("MAX_LAT", "max_latitude");
+            LOC_KEYS.put("MIN_LAT", "min_latitude");
+            LOC_KEYS.put("CAMERA_ACT", "camera_active");
+            LOC_KEYS.put("CAMERA_MSG", "camera_message");
+            LOC_KEYS.put("VIDEO_ACT", "video_active");
+            LOC_KEYS.put("VIDEO_MSG", "video_message");
 
-
-
-            JSONObject forecastJson = new JSONObject(locationJsonStr);
-            JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
-
-            String[] resultStrs = new String[numDays];
-            for(int i = 0; i < weatherArray.length(); i++) {
-                // For now, using the format "Day, description, hi/low"
-                String day;
-                String description;
-                String highAndLow;
-
-                // Get the JSON object representing the day
-                JSONObject dayForecast = weatherArray.getJSONObject(i);
-
-                // The date/time is returned as a long.  We need to convert that
-                // into something human-readable, since most people won't read "1400356800" as
-                // "this saturday".
-                long dateTime = dayForecast.getLong(OWM_DATETIME);
-                day = getReadableDateString(dateTime);
-
-                // description is in a child array called "weather", which is 1 element long.
-                JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
-                description = weatherObject.getString(OWM_DESCRIPTION);
-
-                // Temperatures are in a child object called "temp".  Try not to name variables
-                // "temp" when working with temperature.  It confuses everybody.
-                JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-                double high = temperatureObject.getDouble(OWM_MAX);
-                double low = temperatureObject.getDouble(OWM_MIN);
-
-                highAndLow = formatHighLows(high, low);
-                resultStrs[i] = day + " - " + description + " - " + highAndLow;
+            //create the hash map of hash maps representing each location
+            JSONObject locationJson = new JSONObject(locationJsonStr);
+            JSONObject locations = locationJson.getJSONObject(LOC);
+            Iterator<?> keys = locations.keys();
+            Map<String, Map<String, String>> allLocations = new HashMap<String, Map<String, String>>();
+            while(keys.hasNext()) {
+                String key = (String)keys.next();
+                if(locations.get(key) instanceof JSONObject) {
+                    Map<String, String> descDict = new HashMap<String, String>();
+                    for (Map.Entry<String, String> entry : LOC_KEYS.entrySet()) {
+                        String value = ((JSONObject) locations.get(key))
+                                .getString(LOC_KEYS.get(entry.getKey().toString()));
+                        descDict.put(entry.getKey(), value);
+                    }
+                    allLocations.put(key, descDict);
+                }
             }
-
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
+            String[] resultStrs = new String[allLocations.size()];
+            Iterator<?> hashKeys = allLocations.keySet().iterator();
+            int i = 0;
+            while (hashKeys.hasNext()) {
+                String key = (String)hashKeys.next();
+                StringBuilder thisLocation = new StringBuilder();
+                thisLocation.append(allLocations.get(key).get("DESC_NAME"));
+                resultStrs[i] = thisLocation.toString();
+                i++;
             }
             return resultStrs;
-
         }
 
         @Override
@@ -218,8 +195,8 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                         .build();
 
-                URL url = new URL(builtUri.toString());
-                //URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=37.4528876614&lng=-122.181977257");
+                //URL url = new URL(builtUri.toString());
+                URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=37.4528876614&lng=-122.181977257");
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -267,7 +244,7 @@ public class ForecastFragment extends Fragment {
                 }
             }
             try {
-                return getWeatherDataFromJson(forecastJsonStr, numDays);
+                return getLocationDataFromJson(forecastJsonStr, numDays);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
