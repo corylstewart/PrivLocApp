@@ -46,11 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ForecastFragment extends Fragment {
+public class LocationFragment extends Fragment {
 
     private ArrayAdapter<String> mForecastAdapter;
 
-    public ForecastFragment() {
+    public LocationFragment() {
     }
 
     @Override
