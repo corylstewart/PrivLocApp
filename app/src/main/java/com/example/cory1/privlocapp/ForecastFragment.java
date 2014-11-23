@@ -117,7 +117,7 @@ public class ForecastFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getLocationDataFromJson(String locationJsonStr, int numDays)
+        private String[] getLocationDataFromJson(String locationJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -173,30 +173,23 @@ public class ForecastFragment extends Fragment {
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
-            String format = "json";
-            String units = "metric";
-            int numDays = 7;
+            String locationJsonStr = null;
+            String lat = "37.4528876614";
+            String lng = "-122.181977257";
 
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
-                final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final String QUERY_PARAM = "q";
-                final String FORMAT_PARAM = "mode";
-                final String UNITS_PARAM = "units";
-                final String DAYS_PARAM = "cnt";
+                // Construct the URL for the query
+                final String BASE_URL = "https://newprivlocdemo.appspot.com/within_location?";
+                final String LAT_PARAM = "lat";
+                final String LNG_PARAM = "lng";
 
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0])
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(LAT_PARAM, lat)
+                        .appendQueryParameter(LNG_PARAM, lng)
                         .build();
 
-                //URL url = new URL(builtUri.toString());
-                URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=37.4528876614&lng=-122.181977257");
+                URL url = new URL(builtUri.toString());
+                //URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=&lng=");
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -224,8 +217,8 @@ public class ForecastFragment extends Fragment {
                     // Stream was empty.  No point in parsing.
                     return null;
                 }
-                forecastJsonStr = buffer.toString();
-                //Log.v(LOG_TAG, "Location: " + forecastJsonStr);
+                locationJsonStr = buffer.toString();
+                //Log.v(LOG_TAG, "Location: " + locationJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -244,7 +237,7 @@ public class ForecastFragment extends Fragment {
                 }
             }
             try {
-                return getLocationDataFromJson(forecastJsonStr, numDays);
+                return getLocationDataFromJson(locationJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
