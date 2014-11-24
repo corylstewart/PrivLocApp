@@ -28,6 +28,7 @@ import java.util.Map;
 public class MyActivity extends Activity {
 
     ListView listView;
+    ArrayAdapter<String> adapter;
     Button btnWithinLocation;
     GPSTracker gps;
 
@@ -39,29 +40,21 @@ public class MyActivity extends Activity {
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.locationsListView);
 
-        // Defined Array values to show in ListView
-        String[] values = new String[] { "Android List View",
-                "Adapter implementation",
-                "Simple List View In Android",
-                "Create List View Android",
-                "Android Example",
-                "List View Source Code",
-                "List View Array Adapter",
-                "Android Example List View"
-        };
+        if (savedInstanceState == null) {
+            // Defined Array values to show in ListView
+            String[] values = new String[]{"Android List View",
+                    "Adapter implementation",
+                    "Simple List View In Android",
+                    "Create List View Android",
+                    "Android Example",
+                    "List View Source Code",
+                    "List View Array Adapter",
+                    "Android Example List View"
+            };
+            adapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1, android.R.id.text1, values);
 
-        // Define a new Adapter
-        // First parameter - Context
-        // Second parameter - Layout for the row
-        // Third parameter - ID of the TextView to which the data is written
-        // Forth - the Array of data
-
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, values);
-
-
-        // Assign adapter to ListView
+        }
         listView.setAdapter(adapter);
 
         btnWithinLocation = (Button) findViewById(R.id.btnWithinLocation);
@@ -82,7 +75,8 @@ public class MyActivity extends Activity {
                     locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
 
                     // \n is for new line
-                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: "
+                            + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
                 }else{
                     // can't get location
                     // GPS or Network is not enabled
@@ -260,7 +254,7 @@ public class MyActivity extends Activity {
                 }
                 String[] values = new String[] { "Android List View",
                         "Adapter implementation"};
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                adapter = new ArrayAdapter<String>(getApplicationContext(),
                         android.R.layout.simple_list_item_1, android.R.id.text1, result);
                 listView.setAdapter(adapter);
             }
