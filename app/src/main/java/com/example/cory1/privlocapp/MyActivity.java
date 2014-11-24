@@ -34,7 +34,7 @@ public class MyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.this_location);
+        setContentView(R.layout.within_location);
 
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.locationsListView);
