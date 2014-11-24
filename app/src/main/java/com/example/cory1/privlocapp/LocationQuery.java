@@ -3,6 +3,7 @@ package com.example.cory1.privlocapp;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class LocationQuery extends AsyncTask<String, Void, String[]>{
 
     private final String LOG_TAG = LocationQuery.class.getSimpleName();
+    private ArrayAdapter<String> mLocationAdapter;
 
     @Override
     protected String[] doInBackground(String... params) {
@@ -30,10 +32,8 @@ public class LocationQuery extends AsyncTask<String, Void, String[]>{
 
         // Will contain the raw JSON response as a string.
         String locationJsonStr = null;
-        String lat = "37.4528876614";
-        String lng = "-122.181977257";
-        lat = params[0];
-        lng = params[1];
+        String lat = params[0];
+        String lng = params[1];
 
         try {
             // Construct the URL for the query
@@ -47,19 +47,12 @@ public class LocationQuery extends AsyncTask<String, Void, String[]>{
                     .build();
 
             URL url = new URL(builtUri.toString());
-            //URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=&lng=");
 
-            // Create the request to OpenWeatherMap, and open the connection
+            // Create the request to NewPrivLocDemo, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            //URL url = new URL("https://newprivlocdemo.appspot.com/within_location?lat=&lng=");
-
-            // Create the request to OpenWeatherMap, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
@@ -83,11 +76,10 @@ public class LocationQuery extends AsyncTask<String, Void, String[]>{
                 return null;
             }
             locationJsonStr = buffer.toString();
-            //Log.v(LOG_TAG, "Location: " + locationJsonStr);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attemping
+            // If the code didn't successfully get the location data, there's no point in attemping
             // to parse it.
             return null;
         } finally {
@@ -188,6 +180,12 @@ public class LocationQuery extends AsyncTask<String, Void, String[]>{
 
     @Override
     protected void onPostExecute(String[] result) {
-        Log.v(LOG_TAG, result[0]);
+        if (result != null) {
+            //mLocationAdapter.clear();
+            for (String locationString : result) {
+                Log.v(LOG_TAG, locationString);
+                //mLocationAdapter.add(locationString);
+            }
+        }
     }
 }
