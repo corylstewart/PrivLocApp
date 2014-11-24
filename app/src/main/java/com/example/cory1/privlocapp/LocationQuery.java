@@ -131,11 +131,11 @@ public class LocationQuery extends AsyncTask<String, Void, String[]>{
 
         //create the hash map of hash maps representing each location
         JSONObject locationJson = new JSONObject(locationJsonStr);
-        JSONObject locations = locationJson.getJSONObject(LOC);
-        if (locations == null) {
+        if (locationJson.isNull(LOC)) {
             String[] nullResult = {"Not within a location"};
             return nullResult;
         } else {
+            JSONObject locations = locationJson.getJSONObject(LOC);
             Iterator<?> keys = locations.keys();
             Map<String, Map<String, String>> allLocations = new HashMap<String, Map<String, String>>();
             while (keys.hasNext()) {
