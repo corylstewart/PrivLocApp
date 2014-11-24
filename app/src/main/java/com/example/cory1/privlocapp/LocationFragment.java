@@ -1,15 +1,15 @@
 package com.example.cory1.privlocapp;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,77 +20,49 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+public class LocationFragment extends Fragment {
 
-public class MyActivity extends Activity {
+    private ArrayAdapter<String> mLocationAdapter;
 
-    ListView listView;
-    Button btnWithinLocation;
-    GPSTracker gps;
+    public LocationFragment() {
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.this_location);
+    }
 
-        // Get ListView object from xml
-        listView = (ListView) findViewById(R.id.locationsListView);
-
-        // Defined Array values to show in ListView
-        String[] values = new String[] { "Android List View",
-                "Adapter implementation",
-                "Simple List View In Android",
-                "Create List View Android",
-                "Android Example",
-                "List View Source Code",
-                "List View Array Adapter",
-                "Android Example List View"
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        String[] data = {
+                "Mon 6/23 - Sunny - 31/17",
+                "Tue 6/24 - Foggy - 21/8",
+                "Wed 6/25 - Cloudy - 22/17",
+                "Thurs 6/26 - Rainy - 18/11",
+                "Fri 6/27 - Foggy - 21/10",
+                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
+                "Sun 6/29 - Sunny - 20/7"
         };
+        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
-        // Define a new Adapter
-        // First parameter - Context
-        // Second parameter - Layout for the row
-        // Third parameter - ID of the TextView to which the data is written
-        // Forth - the Array of data
+        mLocationAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                R.layout.this_location,
+                R.id.locationsListView,
+                weekForecast);
+        View rootView = inflater.inflate(R.layout.this_location, container, false);
+        ListView listView = (ListView) rootView.findViewById(R.id.locationsListView);
+        listView.setAdapter(mLocationAdapter);
 
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, values);
-
-
-        // Assign adapter to ListView
-        listView.setAdapter(adapter);
-
-        btnWithinLocation = (Button) findViewById(R.id.btnWithinLocation);
-        btnWithinLocation.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-
-                // create class object
-                gps = new GPSTracker(MyActivity.this);
-
-                // check if GPS enabled
-                if(gps.canGetLocation()){
-
-                    double latitude = gps.getLatitude();
-                    double longitude = gps.getLongitude();
-                    LocationQuery locationQuery = new LocationQuery();
-                    locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
-
-                    // \n is for new line
-                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-                }else{
-                    // can't get location
-                    // GPS or Network is not enabled
-                    // Ask user to enable GPS/network in settings
-                    gps.showSettingsAlert();
-                }
-            }
-        });
+        return rootView;
     }
 
     public class LocationQuery extends AsyncTask<String, Void, String[]> {
@@ -255,14 +227,11 @@ public class MyActivity extends Activity {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
+                //mLocationAdapter.clear();
                 for (String locationString : result) {
                     Log.v(LOG_TAG, locationString);
+                    //mLocationAdapter.add(locationString);
                 }
-                String[] values = new String[] { "Android List View",
-                        "Adapter implementation"};
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, android.R.id.text1, result);
-                listView.setAdapter(adapter);
             }
         }
     }
