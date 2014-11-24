@@ -31,6 +31,7 @@ public class MyActivity extends Activity {
 
             @Override
             public void onClick(View arg0) {
+
                 // create class object
                 gps = new GPSTracker(MyActivity.this);
 
@@ -39,6 +40,8 @@ public class MyActivity extends Activity {
 
                     double latitude = gps.getLatitude();
                     double longitude = gps.getLongitude();
+                    LocationQuery locationQuery = new LocationQuery();
+                    locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
 
                     // \n is for new line
                     Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
@@ -48,7 +51,6 @@ public class MyActivity extends Activity {
                     // Ask user to enable GPS/network in settings
                     gps.showSettingsAlert();
                 }
-
             }
         });
         //end new code
@@ -69,5 +71,4 @@ public class MyActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }
