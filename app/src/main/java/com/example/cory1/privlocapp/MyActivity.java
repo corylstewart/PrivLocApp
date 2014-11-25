@@ -1,6 +1,7 @@
 package com.example.cory1.privlocapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,8 +20,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -39,22 +42,18 @@ public class MyActivity extends Activity {
 
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.locationsListView);
-
+        String[] values;
         if (savedInstanceState == null) {
             // Defined Array values to show in ListView
-            String[] values = new String[]{"Android List View",
-                    "Adapter implementation",
-                    "Simple List View In Android",
-                    "Create List View Android",
-                    "Android Example",
-                    "List View Source Code",
-                    "List View Array Adapter",
-                    "Android Example List View"
-            };
-            adapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, android.R.id.text1, values);
+            values = new String[0];
 
+        } else {
+            values = new String[0];
         }
+        List<String> valuesList = new ArrayList<String>((Arrays.asList(values)));
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, valuesList);
+
         listView.setAdapter(adapter);
 
         btnWithinLocation = (Button) findViewById(R.id.btnWithinLocation);
@@ -75,8 +74,11 @@ public class MyActivity extends Activity {
                     locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
 
                     // \n is for new line
-                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: "
-                            + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+                    String locString =  "Your Location is - \nLat: "
+                            + latitude + "\nLong: " + longitude;
+                    //Toast.makeText(getApplicationContext(), locString, Toast.LENGTH_LONG).show();
+                    adapter.clear();
+                    adapter.add(locString);
                 }else{
                     // can't get location
                     // GPS or Network is not enabled
@@ -252,11 +254,12 @@ public class MyActivity extends Activity {
                 for (String locationString : result) {
                     Log.v(LOG_TAG, locationString);
                 }
+                Context context = adapter.getContext();
                 String[] values = new String[] { "Android List View",
                         "Adapter implementation"};
-                adapter = new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, android.R.id.text1, result);
-                listView.setAdapter(adapter);
+                List<String> valuesList = new ArrayList<String>(Arrays.asList(result));
+                //adapter.clear();
+                adapter.addAll(valuesList);
             }
         }
     }
