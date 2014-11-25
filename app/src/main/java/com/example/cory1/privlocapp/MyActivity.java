@@ -70,8 +70,6 @@ public class MyActivity extends Activity {
 
                     double latitude = gps.getLatitude();
                     double longitude = gps.getLongitude();
-                    LocationQuery locationQuery = new LocationQuery();
-                    locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
 
                     // \n is for new line
                     String locString =  "Your Location is - \nLat: "
@@ -79,6 +77,8 @@ public class MyActivity extends Activity {
                     //Toast.makeText(getApplicationContext(), locString, Toast.LENGTH_LONG).show();
                     adapter.clear();
                     adapter.add(locString);
+                    LocationQuery locationQuery = new LocationQuery();
+                    locationQuery.execute(Double.toString(latitude), Double.toString(longitude));
                 }else{
                     // can't get location
                     // GPS or Network is not enabled
